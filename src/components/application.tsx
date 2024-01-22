@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { FormEventHandler, useEffect, useState } from 'react';
 import Quotes from './quotes';
 import InspirationalQuote from './quote';
 import Loading from './loading';
@@ -20,19 +20,33 @@ export const fetchQuotes = async (count: number) => {
 };
 
 const Application = () => {
-  const [quote, setQuote] = useState();
+  const [quotes, setQuotes] = useState<Quote[]>();
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
-    fetchRandomQuote().then(setQuote);
+    fetchRandomQuote().then((val) => setQuotes([val]));
   }, []);
 
-  if (!quote) return <Loading />;
+  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    fetchQuotes(count).then(setQuotes);
+  }
+
+  if (!quotes) return <Loading />;
   return (
-    <main className="w-full max-w-2xl py-16 mx-auto">
-      {/* <InspirationalQuote content={quote.content} source={quote.source} /> */}
-      {/* <Quotes>
-        <div className="grid grid-cols-2 gap-4"></div>
-      </Quotes> */}
+    <main className="mx-auto w-full max-w-2xl py-16">
+      <Quotes
+        count={count}
+        onSubmit={onSubmit}
+        onChange={(e) => setCount(e.target.valueAsNumber)}
+      >
+        {quotes.map((quote) => (
+          <InspirationalQuote
+            key={quote.id}
+            content={quote.content}
+            source={quote.source}
+          />
+        ))}
+      </Quotes>
     </main>
   );
 };
